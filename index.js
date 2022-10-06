@@ -2,10 +2,10 @@ const express = require("express");
 
 // import db
 const postgreDb = require("./src/config/postgre"); //src\config\postgre.js
-
+// import mainRouter
+const mainRouter = require("./src/routes/main");
 // init express application
 const server = express();
-
 const PORT = 8080;
 
 postgreDb
@@ -13,32 +13,16 @@ postgreDb
   .then(() => {
     // pastikan db connect dulu, baru jalankan server
     console.log("DB connected");
-
+    // pasang parser untuk body
+    server.use(express.json());
+    server.use(express.urlencoded({ extended: false }));
+    // extended true => parsing menggunakan qs => bisa memproses nested object
+    // extended false => parsing menggunakan querystring => tidak bisa memproses nested object
+    // semua request ke server akan didelegasikan ke mainRouter
+    server.use(mainRouter);
+    // server siap menerima request di port
     server.listen(PORT, () => {
       console.log(`Server is running at port ${PORT}`);
-    });
-
-    // http route
-    // http://localhost:8080/
-    server.get("/", (req, res) => {
-      res.json({
-        msg: "Welcome",
-      });
-    });
-    // http://localhost:8080/api/v1/books
-    server.get("/api/v1/books", async (req, res) => {
-      try {
-        const query = "select id, title, author from books";
-        const response = await postgreDb.query(query);
-        res.status(200).json({
-          result: response.rows,
-        });
-      } catch (err) {
-        console.log(err);
-        res.status(500).json({
-          msg: "Internal Server Error",
-        });
-      }
     });
   })
   .catch((err) => {
