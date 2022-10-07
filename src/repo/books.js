@@ -1,9 +1,12 @@
 const postgreDb = require("../config/postgre");
 
-const getBooks = () => {
+const getBooks = (queryParams) => {
   return new Promise((resolve, reject) => {
-    const query = "select id, title, author from books";
-    postgreDb.query(query, (err, result) => {
+    // asumsi query params selalu berisi title dan author
+    const query =
+      "select id, title, author from books where lower(title) like lower($1) and lower(author) like lower($2)";
+    const values = [`%${queryParams.title}%`, `%${queryParams.author}%`];
+    postgreDb.query(query, values, (err, result) => {
       if (err) {
         console.log(err);
         return reject(err);

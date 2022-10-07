@@ -2,7 +2,8 @@ const booksRepo = require("../repo/books");
 
 const get = async (req, res) => {
   try {
-    const response = await booksRepo.getBooks();
+    console.log(req.query);
+    const response = await booksRepo.getBooks(req.query);
     res.status(200).json({
       result: response.rows,
     });
