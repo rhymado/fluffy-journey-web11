@@ -4,6 +4,7 @@ const express = require("express");
 const booksRouter = require("./books");
 const historyRouter = require("./history");
 const usersRouter = require("./users");
+const authRouter = require("./auth");
 
 const mainRouter = express.Router();
 
@@ -14,6 +15,7 @@ mainRouter.use(`${prefix}/books`, booksRouter);
 // untuk rute /api/v1/books ditangani oleh booksRouter
 mainRouter.use(`${prefix}/users`, usersRouter);
 mainRouter.use(`${prefix}/history`, historyRouter);
+mainRouter.use(`${prefix}/auth`, authRouter);
 // http route
 // http://localhost:8080/
 mainRouter.get("/", (req, res) => {

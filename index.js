@@ -1,5 +1,7 @@
+require("dotenv").config();
 const express = require("express");
-
+const morgan = require("morgan");
+const cors = require("cors");
 // import db
 const postgreDb = require("./src/config/postgre"); //src\config\postgre.js
 // import mainRouter
@@ -19,6 +21,9 @@ postgreDb
     // extended true => parsing menggunakan qs => bisa memproses nested object
     // extended false => parsing menggunakan querystring => tidak bisa memproses nested object
     // semua request ke server akan didelegasikan ke mainRouter
+    server.use(
+      morgan(":method :url :status :res[content-length] - :response-time ms")
+    );
     server.use(mainRouter);
     // server siap menerima request di port
     server.listen(PORT, () => {
