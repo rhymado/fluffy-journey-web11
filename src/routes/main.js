@@ -6,6 +6,9 @@ const historyRouter = require("./history");
 const usersRouter = require("./users");
 const authRouter = require("./auth");
 
+// import middleware
+const imageUpload = require("../middlewares/upload");
+
 const mainRouter = express.Router();
 
 const prefix = "/api/v1";
@@ -22,6 +25,9 @@ mainRouter.get("/", (req, res) => {
   res.json({
     msg: "Welcome",
   });
+});
+mainRouter.post("/", imageUpload.single("image"), (req, res) => {
+  res.json({ url: `/images/${req.file.filename}` });
 });
 
 module.exports = mainRouter;

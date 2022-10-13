@@ -16,6 +16,7 @@ postgreDb
     // pastikan db connect dulu, baru jalankan server
     console.log("DB connected");
     // pasang parser untuk body
+    server.use(express.static("./public"));
     server.use(express.json());
     server.use(express.urlencoded({ extended: false }));
     // extended true => parsing menggunakan qs => bisa memproses nested object

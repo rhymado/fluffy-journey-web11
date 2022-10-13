@@ -2,10 +2,38 @@ const postgreDb = require("../config/postgre");
 
 const getBooks = (queryParams) => {
   return new Promise((resolve, reject) => {
+    // const bookSchema = {
+    //   table: "books",
+    //   alias: "b",
+    //   column: {
+    //     id: "number",
+    //     title: "string",
+    //     author: "string",
+    //     publisher: "string",
+    //     genre: "string",
+    //     published_date: "date",
+    //   },
+    // };
     // asumsi query params selalu berisi title dan author
-    const query =
-      "select id, title, author from books where lower(title) like lower($1) and lower(author) like lower($2)";
-    const values = [`%${queryParams.title}%`, `%${queryParams.author}%`];
+    let query = "select id, title, author from books b ";
+    const values = [];
+    const whereParams = Object.keys(queryParams).filter((key) =>
+      ["title", "author"].includes(key)
+    );
+    if (whereParams.length > 0) query += "where ";
+    whereParams.forEach((key) => {
+      if (values.length > 0) query += "and ";
+      query += `lower(b.${key}) like lower('%' || $${
+        values.length + 1
+      } || '%') `;
+      values.push(String(queryParams[key]));
+    });
+    // paginasi biasanya diwakili dengan query page dan limit
+    const page = Number(queryParams.page);
+    const limit = Number(queryParams.limit);
+    const offset = (page - 1) * limit;
+    query += `limit $${values.length + 1} offset $${values.length + 2}`;
+    values.push(limit, offset);
     postgreDb.query(query, values, (err, result) => {
       if (err) {
         console.log(err);

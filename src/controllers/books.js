@@ -1,16 +1,25 @@
 const booksRepo = require("../repo/books");
+const sendResponse = require("../helpers/response");
 
 const get = async (req, res) => {
   try {
-    console.log(req.query);
+    // console.log(req.query);
     const response = await booksRepo.getBooks(req.query);
-    res.status(200).json({
-      result: response.rows,
-    });
+    sendResponse.success(res, 200, response.rows);
+    /**
+     * response yang mengandung paginasi
+     * {
+     *  data,
+     *  meta: {
+     *      dataCount: // diisikan total data yang ada di db
+     *      next: // link untuk halaman selanjutnya || null
+     *      prev: // link untuk halaman sebelumnya || null
+     *      totalPage: // total halaman: Math.ceil(dataCount/limit)
+     *    }
+     * }
+     */
   } catch (err) {
-    res.status(500).json({
-      msg: "Internal Server Error",
-    });
+    sendResponse.error(res, 500, "Internal Server Error");
   }
 };
 const create = async (req, res) => {
