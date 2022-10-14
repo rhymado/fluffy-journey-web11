@@ -107,6 +107,22 @@ const deleteBooks = (params) => {
     });
   });
 };
+const transaction = async () => {
+  const client = await postgreDb.connect();
+  try {
+    await client.query("BEGIN"); // start transaction
+    // jalankan query yang banyak
+    // 1. query insert transaksi, akan mengambil id transaksi
+    // 2. query insert multiple untuk pivot transactions_products_sizes
+    // await client.query("SAVEPOINT insert_transaction");
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
 
 const booksRepo = {
   getBooks,
