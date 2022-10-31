@@ -9,6 +9,8 @@ const authRouter = require("./auth");
 // import middleware
 const imageUpload = require("../middlewares/upload");
 
+const redisClient = require("../config/redis");
+
 const mainRouter = express.Router();
 
 const prefix = "/api/v1";
@@ -28,6 +30,28 @@ mainRouter.get("/", (req, res) => {
 });
 mainRouter.post("/", imageUpload.single("image"), (req, res) => {
   res.json({ url: `/images/${req.file.filename}` });
+});
+mainRouter.get("/redis/:key", async (req, res) => {
+  try {
+    await redisClient.connect();
+    const value = await redisClient.get(req.params.key);
+    res.status(200).json({ msg: "Success", data: { [req.params.key]: value } });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+mainRouter.post("/redis/:key", async (req, res) => {
+  try {
+    await redisClient.connect();
+    await redisClient.set(req.params.key, JSON.stringify(req.body));
+    res.status(200).json({ msg: "Success" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+mainRouter.patch("/cors", (req, res) => {
+  console.log(req.query);
+  res.status(200).json({ msg: "Welcome" });
 });
 
 module.exports = mainRouter;

@@ -3,7 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 // import db
-const postgreDb = require("./src/config/postgre"); //src\config\postgre.js
+// const postgreDb = require("./src/config/postgre"); //src\config\postgre.js
 // import mainRouter
 const mainRouter = require("./src/routes/main");
 // init express application
@@ -15,6 +15,11 @@ const PORT = 8080;
 //   .then(() => {
 // pastikan db connect dulu, baru jalankan server
 // console.log("DB connected");
+server.use(
+  cors({
+    origin: "*",
+  })
+);
 // pasang parser untuk body
 server.use(express.static("./public"));
 server.use(express.json());
