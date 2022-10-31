@@ -12,6 +12,7 @@ const {
   memoryUpload,
   errorHandler,
 } = require("../middlewares/upload");
+const cloudinaryUploader = require("../middlewares/cloudinary");
 
 const redisClient = require("../config/redis");
 
@@ -70,9 +71,16 @@ mainRouter.post(
     memoryUpload.single("image")(req, res, (err) => {
       errorHandler(err, res, next);
     }),
+  cloudinaryUploader,
   (req, res) => {
-    console.log(req.file);
-    res.status(204).send();
+    // console.log(req.file);
+    res.status(200).json({
+      msg: "Upload Success",
+      data: {
+        url: req.file.url,
+        secure: req.file.secure_url,
+      },
+    });
   }
 );
 
