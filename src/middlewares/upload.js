@@ -1,7 +1,30 @@
 const multer = require("multer");
 const path = require("path");
 
-const storage = multer.diskStorage({
+const limits = {
+  fileSize: 2e6,
+};
+const fileFilter = (req, file, cb) => {
+  const extName = path.extname(file.originalname);
+  const allowedExt = /jpg|png/;
+  if (!allowedExt.test(extName))
+    return cb(new Error("Only Use Allowed Extension (JPG, PNG)"), false);
+  cb(null, true);
+};
+const onError = (err, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(500).json({ err: "Multer Error", msg: err.message });
+  }
+  if (err) {
+    return res
+      .status(500)
+      .json({ err: "Internal Server Error", msg: err.message });
+  }
+  console.log("Upload Success");
+  next();
+};
+
+const diskStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/images");
   },
@@ -13,8 +36,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({
-  storage,
+const diskUpload = multer({
+  storage: diskStorage,
+  limits,
+  fileFilter,
 });
 
-module.exports = upload;
+const memoryStorage = multer.memoryStorage();
+
+const memoryUpload = multer({
+  storage: memoryStorage,
+  limits,
+  fileFilter,
+});
+
+module.exports = { diskUpload, memoryUpload, onError };

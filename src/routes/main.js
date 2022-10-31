@@ -7,7 +7,8 @@ const usersRouter = require("./users");
 const authRouter = require("./auth");
 
 // import middleware
-const imageUpload = require("../middlewares/upload");
+const { diskUpload, memoryUpload, onError } = require("../middlewares/upload");
+const cloudUploader = require("../middlewares/cloudinary");
 
 const redisClient = require("../config/redis");
 
@@ -28,9 +29,14 @@ mainRouter.get("/", (req, res) => {
     msg: "Welcome",
   });
 });
-mainRouter.post("/", imageUpload.single("image"), (req, res) => {
-  res.json({ url: `/images/${req.file.filename}` });
-});
+mainRouter.post(
+  "/",
+  (req, res, next) =>
+    diskUpload.single("image")(req, res, (err) => onError(err, res, next)),
+  (req, res) => {
+    res.json({ url: `/images/${req.file.filename}` });
+  }
+);
 mainRouter.get("/redis/:key", async (req, res) => {
   try {
     await redisClient.connect();
@@ -53,5 +59,21 @@ mainRouter.patch("/cors", (req, res) => {
   console.log(req.query);
   res.status(200).json({ msg: "Welcome" });
 });
+mainRouter.post(
+  "/cloud",
+  (req, res, next) =>
+    memoryUpload.single("image")(req, res, (err) => onError(err, res, next)),
+  cloudUploader,
+  (req, res) => {
+    const { url, secure_url } = req.file;
+    res.status(200).json({
+      msg: "Upload Success",
+      data: {
+        url,
+        secure_url,
+      },
+    });
+  }
+);
 
 module.exports = mainRouter;
