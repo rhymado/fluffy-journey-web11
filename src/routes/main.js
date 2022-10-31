@@ -26,7 +26,7 @@ mainRouter.use(`${prefix}/auth`, authRouter);
 // http://localhost:8080/
 mainRouter.get("/", (req, res) => {
   res.json({
-    msg: "Welcome",
+    msg: "Welcom",
   });
 });
 mainRouter.post(
